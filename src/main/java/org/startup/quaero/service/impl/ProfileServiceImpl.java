@@ -43,4 +43,9 @@ public class ProfileServiceImpl implements ProfileService {
         User updatedUser = userRepository.save(existingUser);
         return modelMapper.map(updatedUser, UserInfoDto.class);
     }
+
+    @Override
+    public String getUserRole(long userId){
+        return userRepository.findRoleById(userId).toString();
+    }
 }

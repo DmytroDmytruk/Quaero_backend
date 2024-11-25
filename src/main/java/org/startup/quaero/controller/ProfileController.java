@@ -43,4 +43,9 @@ public class ProfileController {
         UserInfoDto userInfoDto = profileService.setUserInfo(setUserInfoDto, userId);
         return ResponseEntity.ok(userInfoDto);
     }
+
+    @GetMapping("/getRole/{id}")
+    public ResponseEntity<String> getRole(@PathVariable long id){
+        return ResponseEntity.ok(profileService.getUserRole(id));
+    }
 }
