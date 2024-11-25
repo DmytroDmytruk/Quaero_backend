@@ -38,7 +38,7 @@ public class ProfileServiceImpl implements ProfileService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         modelMapper.map(setUserDto, existingUser);
         if (setUserDto.getRole() != null) {
-            existingUser.setRole(Role.valueOf(String.valueOf(setUserDto)));
+            existingUser.setRole(Role.valueOf(setUserDto.getRole()));
         }
         User updatedUser = userRepository.save(existingUser);
         return modelMapper.map(updatedUser, UserInfoDto.class);
