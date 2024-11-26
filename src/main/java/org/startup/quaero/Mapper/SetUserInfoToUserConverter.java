@@ -19,7 +19,6 @@ public class SetUserInfoToUserConverter implements Converter<SetUserInfoDto, Use
                 .firstName(source.getFirstName())
                 .lastName(source.getLastName())
                 .email(source.getEmail())
-                .password(source.getPassword())
                 .role(role)
                 .dateOfRegistration(LocalDateTime.now())
                 .phone(source.getPhone())
