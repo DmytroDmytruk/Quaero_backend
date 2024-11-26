@@ -4,25 +4,62 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
-// Статичні файли
 app.use(express.static('public'));
 
-// WebSocket логіка
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'DELETE', "PUT", "PATCH"],
+    },
+});
+
+app.get('/new-design', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/new_design.html'));
+});
+
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('offer', (data) => {
-        socket.to(data.target).emit('offer', { offer: data.offer, sender: socket.id });
+    socket.on('call-user', (data) => {
+        console.log(`Call request from ${socket.id} to ${data.target}`);
+        io.to(data.target).emit('call-request', {
+            from: socket.id,
+        });
     });
 
-    socket.on('answer', (data) => {
-        socket.to(data.target).emit('answer', { answer: data.answer });
+    socket.on('call-accepted', (data) => {
+        console.log(`Call accepted by ${socket.id}`);
+        io.to(data.from).emit('call-accepted', {
+            answer: data.answer,
+        });
     });
 
-    socket.on('candidate', (data) => {
-        socket.to(data.target).emit('candidate', { candidate: data.candidate });
+    socket.on('ice-candidate', (data) => {
+        io.to(data.target).emit('ice-candidate', {
+            candidate: data.candidate,
+        });
+    });
+
+    socket.on('send-offer', (data) => {
+        io.to(data.target).emit('offer-received', {
+            offer: data.offer,
+            from: socket.id,
+        });
+    });
+
+    socket.on('send-answer', (data) => {
+        io.to(data.target).emit('answer-received', {
+            answer: data.answer,
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+    
+    socket.on('end-call', (data) => {
+        io.to(data.target).emit('call-ended');
     });
 
     socket.on('disconnect', () => {
@@ -30,5 +67,4 @@ io.on('connection', (socket) => {
     });
 });
 
-// Запуск сервера
-server.listen(3000, () => console.log('Server running on http://localhost:3000'));
+server.listen(3030, () => console.log('Server running on http://localhost:3000'));я
