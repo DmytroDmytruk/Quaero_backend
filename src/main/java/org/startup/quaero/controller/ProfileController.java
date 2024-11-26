@@ -9,11 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.startup.quaero.dto.profile.SetUserInfoDto;
 import org.startup.quaero.dto.profile.UserInfoDto;
 import org.startup.quaero.service.ProfileService;
+
+import java.util.List;
 
 @RestController("/profile")
 @RequiredArgsConstructor
@@ -47,5 +51,17 @@ public class ProfileController {
     @GetMapping("/getRole/{id}")
     public ResponseEntity<String> getRole(@PathVariable long id){
         return ResponseEntity.ok(profileService.getUserRole(id));
+    }
+
+    @PutMapping("/setAboutMe{id}")
+    public ResponseEntity<String> setAboutMe(@PathVariable long id, @RequestBody String aboutMe){
+        profileService.setAboutMe(id, aboutMe);
+        return ResponseEntity.ok("About me updated successfully");
+    }
+
+    @PutMapping("/setAdditionalInfo{id}")
+    public ResponseEntity<String> setAboutMe(@PathVariable long id, @RequestBody List<String> additionalInfo){
+        profileService.setAdditionalInfo(id, additionalInfo);
+        return ResponseEntity.ok("Additional Info updated successfully");
     }
 }
