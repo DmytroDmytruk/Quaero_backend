@@ -14,6 +14,8 @@ import org.startup.quaero.enums.Role;
 import org.startup.quaero.exceptions.UserNotFoundException;
 import org.startup.quaero.service.ProfileService;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
@@ -47,5 +49,19 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public String getUserRole(long userId){
         return userRepository.findRoleById(userId).toString();
+    }
+
+    @Override
+    public void setAboutMe(long userId, String aboutMe) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException("User not found with id: " + userId));
+        user.setDescription(aboutMe);
+    }
+
+    @Override
+    public void setAdditionalInfo(long userId, List<String> additionalInfo) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException("User not found with id: " + userId));
+        user.setAdditionalInfo(additionalInfo);
     }
 }
