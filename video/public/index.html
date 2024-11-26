@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Call App</title>
+    <style>
+        #callNotification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid black;
+            text-align: center;
+        }
+        video {
+            width: 300px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Call App</h1>
+    <div>
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+    <input type="text" id="usernameInput" placeholder="Enter user ID to call" />
+    <button id="callButton">Call</button>
+    <button id="endCallButton">End Call</button>
+    <button id="toggleCameraButton">Toggle Camera</button>
+    <button id="toggleMicButton">Turn Microphone Off</button>
+
+
+
+    <div id="callNotification">
+        <p>Incoming call...</p>
+        <button id="acceptCall">Accept</button>
+        <button id="rejectCall">Reject</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
