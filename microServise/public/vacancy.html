@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creating Vacancy</title>
+</head>
+<body>
+    <h1>Create a New Vacancy</h1>
+    <form id="vacancyForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        <br><br>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br><br>
+
+        <label for="company">Company:</label>
+        <input type="text" id="company" name="company" required>
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="response" style="color: green;"></p>
+    <script>
+        const form = document.getElementById('vacancyForm');
+        const responseElement = document.getElementById('response');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = {
+                title: form.title.value,
+                description: form.description.value,
+                company: form.company.value,
+            };
+
+            try {
+                const response = await fetch('/creating-vacancy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create vacancy');
+                }
+
+                const result = await response.json();
+                responseElement.textContent = result.message;
+            } catch (error) {
+                responseElement.textContent = `Error: ${error.message}`;
+                responseElement.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
