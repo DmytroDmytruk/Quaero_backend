@@ -116,4 +116,13 @@ public class JobVacancyServiceImpl implements JobVacancyService {
 
         return new PageImpl<>(jobVacancyDtos, PageRequest.of(page, size), total);
     }
+
+    @Override
+    public Page<JobVacancyDto> getVacanciesByHr(long hrId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<JobVacancy> vacanciesPage = jobVacancyRepo.findByPostedById(hrId, pageable);
+        return vacanciesPage.map(jobVacancy ->
+                modelMapper.map(jobVacancy, JobVacancyDto.class)
+        );
+    }
 }
