@@ -59,5 +59,17 @@ public class JobVacancyController {
         return ResponseEntity.ok(jobVacancyService.getSimilarVacancies(vacancyId, size));
     }
 
-
+    @Operation(summary = "Дістати вакансії по hr")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "NOT_FOUND")
+    })
+    @GetMapping("/getVacanciesByHr/{hrId}")
+    public ResponseEntity<Page<JobVacancyDto>> getVacanciesByHr(
+            @PathVariable long hrId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(jobVacancyService.getVacanciesByHr(hrId, page, size));
+    }
 }

@@ -1,5 +1,6 @@
 package org.startup.quaero.database.repos;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,5 @@ public interface JobVacancyRepo extends JpaRepository<JobVacancy, Long> {
                                           @Param("yearsOfExperience") Integer yearsOfExperience,
                                           @Param("vacancyId") Long vacancyId,
                                           Pageable pageable);
+    Page<JobVacancy> findByPostedById(long hrId, Pageable pageable);
 }
