@@ -14,4 +14,5 @@ import java.util.List;
 public class HRInfoDto extends UserInfoDto{
     private String companyName;
     private List<String> additionalInfo;
+    private String description;
 }

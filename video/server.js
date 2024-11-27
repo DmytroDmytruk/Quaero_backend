@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
-    
+
     socket.on('end-call', (data) => {
         io.to(data.target).emit('call-ended');
     });
@@ -67,4 +67,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3030, () => console.log('Server running on http://localhost:3000'));
+server.listen(3030, () => console.log('Server running on http://localhost:3030'));

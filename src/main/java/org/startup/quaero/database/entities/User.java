@@ -64,7 +64,7 @@ public class User {
     @Column(length = 100)
     private String position;
 
-    @Column
+    @Column(length = 999999999)
     private String description;
 
     @ElementCollection
