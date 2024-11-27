@@ -4,19 +4,9 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.static('public'));
-
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST', 'DELETE', "PUT", "PATCH"],
-    },
-});
-
-app.get('/new-design', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/new_design.html'));
-});
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
@@ -67,4 +57,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3030, () => console.log('Server running on http://localhost:3000'));
+server.listen(3000, () => console.log('Server running on http://localhost:3000'));

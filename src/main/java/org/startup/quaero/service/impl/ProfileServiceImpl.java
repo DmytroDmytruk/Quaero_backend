@@ -56,6 +56,7 @@ public class ProfileServiceImpl implements ProfileService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User not found with id: " + userId));
         user.setDescription(aboutMe);
+        userRepository.save(user);
     }
 
     @Override
@@ -63,5 +64,6 @@ public class ProfileServiceImpl implements ProfileService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User not found with id: " + userId));
         user.setAdditionalInfo(additionalInfo);
+        userRepository.save(user);
     }
 }

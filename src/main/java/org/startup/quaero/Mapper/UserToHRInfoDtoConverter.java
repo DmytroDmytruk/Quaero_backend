@@ -22,6 +22,7 @@ public class UserToHRInfoDtoConverter implements Converter<User, HRInfoDto> {
                 .city(source.getCity())
                 .companyName(source.getCompanyName())
                 .additionalInfo(source.getAdditionalInfo())
+                .description(source.getDescription())
                 .build();
     }
 }
