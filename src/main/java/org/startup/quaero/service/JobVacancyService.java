@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.startup.quaero.dto.vacancy.JobVacancyDto;
 import org.startup.quaero.dto.vacancy.JobVacancyFilterDto;
+import org.startup.quaero.dto.vacancy.SetJobVacancyDto;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface JobVacancyService {
     List<JobVacancyDto> getSimilarVacancies(long vacancyId, int size);
     Page<JobVacancyDto> sortAndFilterVacancies(JobVacancyFilterDto filterDto, int page, int size);
     Page<JobVacancyDto> getVacanciesByHr(long hrId, int page, int size);
+    void createVacancy(long hrId, SetJobVacancyDto setJobVacancyDto);
 }

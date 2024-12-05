@@ -1,10 +1,13 @@
 package org.startup.quaero.dto.vacancy;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.startup.quaero.dto.SortDirection;
 
 @Getter
 @Setter
@@ -21,7 +24,14 @@ public class JobVacancyFilterDto {
     private Double maxSalary = Double.MAX_VALUE;
     private Integer minYearsOfExperience = 0;
     private Integer maxYearsOfExperience = Integer.MAX_VALUE;
-    private String sortBy = "datePosted";
-    private String sortDirection = "desc";
+
+    @NotBlank(message = "SortBy не має бути пусте")
+
+    @Pattern(regexp = "positionTitle|salary|datePosted|yearsOfExperience|companyName|category.name|employmentType.type|postedBy.name", message = "Неправильне значення SortBy кретине, має бути positionTitle|salary|datePosted|yearsOfExperience|companyName|category.name|employmentType.type|postedBy.name")
+    private String sortBy;
+
+    @NotBlank(message = "SortDirection не має бути пусте")
+    @Pattern(regexp = "asc|desc", message = "Неправильне значення SortDirection кретине, має бути asc|desc")
+    private String sortDirection;
 }
 
