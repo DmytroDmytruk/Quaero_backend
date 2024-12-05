@@ -12,15 +12,23 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.startup.quaero.database.entities.EmploymentType;
 import org.startup.quaero.database.entities.JobCategory;
 import org.startup.quaero.database.entities.JobLanguage;
 import org.startup.quaero.database.entities.JobVacancy;
+import org.startup.quaero.database.entities.User;
+import org.startup.quaero.database.repos.EmploymentTypeRepo;
+import org.startup.quaero.database.repos.JobCategoryRepo;
 import org.startup.quaero.database.repos.JobVacancyRepo;
+import org.startup.quaero.database.repos.UserRepo;
 import org.startup.quaero.dto.vacancy.JobLanguageDto;
 import org.startup.quaero.dto.vacancy.JobVacancyDto;
 import org.startup.quaero.dto.vacancy.JobVacancyFilterDto;
+import org.startup.quaero.dto.vacancy.SetJobVacancyDto;
 import org.startup.quaero.service.JobVacancyService;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +38,10 @@ import java.util.stream.Collectors;
 public class JobVacancyServiceImpl implements JobVacancyService {
 
     private final JobVacancyRepo jobVacancyRepo;
+    private final UserRepo userRepo;
+    private final JobCategoryRepo jobCategoryRepo;
+    private final EmploymentTypeRepo employmentTypeRepo;
+
     private final ModelMapper modelMapper;
 
     @PersistenceContext
@@ -110,12 +122,30 @@ public class JobVacancyServiceImpl implements JobVacancyService {
 
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<JobVacancy> countRoot = countQuery.from(JobVacancy.class);
-        countQuery.select(cb.count(countRoot))
-                .where(cb.and(predicates.toArray(new Predicate[0])));
+
+        Join<JobVacancy, JobCategory> countCategoryJoin = countRoot.join("category", JoinType.LEFT);
+        Join<JobVacancy, EmploymentType> countEmploymentTypeJoin = countRoot.join("employmentType", JoinType.LEFT);
+        Join<JobVacancy, JobLanguage> countLanguageJoin = countRoot.join("languages", JoinType.LEFT);
+
+        List<Predicate> countPredicates = new ArrayList<>();
+        countPredicates.add(cb.like(cb.lower(countRoot.get("positionTitle")), "%" + filterDto.getPositionTitle().toLowerCase() + "%"));
+        countPredicates.add(cb.like(cb.lower(countRoot.get("companyName")), "%" + filterDto.getCompanyName().toLowerCase() + "%"));
+        countPredicates.add(cb.like(cb.lower(countCategoryJoin.get("name")), "%" + filterDto.getCategoryName().toLowerCase() + "%"));
+        countPredicates.add(cb.like(cb.lower(countEmploymentTypeJoin.get("type")), "%" + filterDto.getEmploymentType().toLowerCase() + "%"));
+        countPredicates.add(cb.like(cb.lower(countLanguageJoin.get("languageName")), "%" + filterDto.getLanguageName().toLowerCase() + "%"));
+        countPredicates.add(cb.ge(countRoot.get("salary"), filterDto.getMinSalary()));
+        countPredicates.add(cb.le(countRoot.get("salary"), filterDto.getMaxSalary()));
+        countPredicates.add(cb.ge(countRoot.get("yearsOfExperience"), filterDto.getMinYearsOfExperience()));
+        countPredicates.add(cb.le(countRoot.get("yearsOfExperience"), filterDto.getMaxYearsOfExperience()));
+
+        countQuery.where(cb.and(countPredicates.toArray(new Predicate[0])));
+        countQuery.select(cb.count(countRoot));
+
         long total = entityManager.createQuery(countQuery).getSingleResult();
 
         return new PageImpl<>(jobVacancyDtos, PageRequest.of(page, size), total);
     }
+
 
     @Override
     public Page<JobVacancyDto> getVacanciesByHr(long hrId, int page, int size){
@@ -124,5 +154,53 @@ public class JobVacancyServiceImpl implements JobVacancyService {
         return vacanciesPage.map(jobVacancy ->
                 modelMapper.map(jobVacancy, JobVacancyDto.class)
         );
+    }
+
+    @Transactional
+    public void createVacancy(long hrId, SetJobVacancyDto setJobVacancyDto) {
+        User hr = userRepo.findById(hrId)
+                .orElseThrow(() -> new IllegalArgumentException("HR with ID " + hrId + " not found"));
+
+        JobCategory category = jobCategoryRepo.findByName(setJobVacancyDto.getCategoryName())
+                .orElseGet(() -> {
+                    JobCategory newCategory = JobCategory.builder()
+                            .name(setJobVacancyDto.getCategoryName())
+                            .build();
+                    return jobCategoryRepo.save(newCategory);
+                });
+
+        EmploymentType employmentType = employmentTypeRepo.findByType(setJobVacancyDto.getEmploymentTypeName())
+                .orElseGet(() -> {
+                    EmploymentType newEmploymentType = EmploymentType.builder()
+                            .type(setJobVacancyDto.getEmploymentTypeName())
+                            .build();
+                    return employmentTypeRepo.save(newEmploymentType);
+                });
+
+        JobVacancy jobVacancy = JobVacancy.builder()
+                .positionTitle(setJobVacancyDto.getPositionTitle())
+                .salary(setJobVacancyDto.getSalary())
+                .description(setJobVacancyDto.getDescription())
+                .companyName(setJobVacancyDto.getCompanyName())
+                .postedBy(hr)
+                .datePosted(LocalDateTime.now())
+                .category(category)
+                .yearsOfExperience(setJobVacancyDto.getYearsOfExperience())
+                .employmentType(employmentType)
+                .build();
+
+        jobVacancy.setLanguages(mapLanguages(setJobVacancyDto.getLanguages(), jobVacancy));
+
+        jobVacancyRepo.save(jobVacancy);
+    }
+
+    private List<JobLanguage> mapLanguages(List<SetJobVacancyDto.LanguageDto> languagesDto, JobVacancy jobVacancy) {
+        return languagesDto.stream()
+                .map(dto -> JobLanguage.builder()
+                        .languageName(dto.getLanguageName())
+                        .languageLevel(dto.getLanguageLevel())
+                        .jobVacancy(jobVacancy)
+                        .build())
+                .toList();
     }
 }

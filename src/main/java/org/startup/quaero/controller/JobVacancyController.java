@@ -3,6 +3,7 @@ package org.startup.quaero.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.startup.quaero.dto.vacancy.JobVacancyDto;
 import org.startup.quaero.dto.vacancy.JobVacancyFilterDto;
+import org.startup.quaero.dto.vacancy.SetJobVacancyDto;
 import org.startup.quaero.service.JobVacancyService;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class JobVacancyController {
     })
     @PostMapping("/getAllFilteredAndSorted")
     public ResponseEntity<Page<JobVacancyDto>> getAllFilteredAndSorted(
-            @RequestBody JobVacancyFilterDto filterDto,
+            @Valid @RequestBody JobVacancyFilterDto filterDto,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
@@ -71,5 +73,16 @@ public class JobVacancyController {
             @RequestParam(defaultValue = "10") int size
     ){
         return ResponseEntity.ok(jobVacancyService.getVacanciesByHr(hrId, page, size));
+    }
+
+    @Operation(summary = "піпіпупу")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "404", description = "NOT_FOUND")
+    })
+    @PostMapping("/setVacancy{hrId}")
+    public ResponseEntity<String> setVacancy(@PathVariable long hrId, @RequestBody SetJobVacancyDto setJobVacancyDto){
+        jobVacancyService.createVacancy(hrId, setJobVacancyDto);
+        return ResponseEntity.ok("Vacancy set successfully");
     }
 }
